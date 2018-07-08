@@ -3,7 +3,8 @@
  */
 
 package ua.pp.yest.ndculistloader
-import akka.actor.{Actor, ActorRef, Terminated}
+import akka.actor.{Actor, ActorLogging, ActorRef, Terminated}
+
 import scala.collection.mutable.ArrayBuffer
 
 object Reaper {
@@ -11,7 +12,7 @@ object Reaper {
   case class WatchMe(ref: ActorRef)
 }
 
-abstract class Reaper extends Actor {
+abstract class Reaper extends Actor with ActorLogging {
   import Reaper._
 
   // Keep track of what we're watching
@@ -24,9 +25,11 @@ abstract class Reaper extends Actor {
   // Watch and check for termination
   final def receive = {
     case WatchMe(ref) =>
+//      log.warning("WatchMe - {}",ref)
       context.watch(ref)
       watched += ref
     case Terminated(ref) =>
+      log.warning("Terminated - {}",ref)
       watched -= ref
       if (watched.isEmpty) allSoulsReaped()
   }
