@@ -1,6 +1,6 @@
 package ua.pp.yest.ndculistloader
 
-import akka.actor.{Actor, ActorLogging}
+import akka.actor.{Actor, ActorLogging, Props}
 
 /**
   * Actor generates DML-expression as calling of stored procedure in Oracle DB
@@ -41,3 +41,6 @@ class PersonDMLLoader(val scriptFileName: String) extends Actor with ActorLoggin
   }
 }
 
+object PersonDMLLoader{
+  def props(scriptFileName: String): Props = Props(new PersonDMLLoader(scriptFileName))
+}

@@ -11,7 +11,7 @@ import akka.actor._
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
-import akka.actor.{Actor, ActorSystem, Props, SupervisorStrategy}
+import akka.actor.{ActorSystem, Props, SupervisorStrategy}
 import ua.pp.yest.ndculistloader.Reaper.WatchMe
 
 
@@ -32,7 +32,7 @@ object NSDCUListLoader extends App {
 
   val sysETL = ActorSystem("sysETL")
   val reaper = sysETL.actorOf(Props[ETLActorsReaper])
-  val etlActor = sysETL.actorOf(Props(new PersonETL(reaper, inFilePath)), "etlActor")
+  val etlActor = sysETL.actorOf(PersonETL.props(reaper,inFilePath), "etlActor")
   reaper ! WatchMe(etlActor)
   Await.ready(sysETL.whenTerminated, Duration(1, TimeUnit.MINUTES))
 }

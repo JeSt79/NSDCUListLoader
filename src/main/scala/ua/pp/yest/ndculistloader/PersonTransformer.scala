@@ -4,7 +4,7 @@
 
 package ua.pp.yest.ndculistloader
 
-import akka.actor.{Actor, ActorLogging, ActorRef}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 
 /**
   * Transform Person data before loading process
@@ -23,4 +23,9 @@ class PersonTransformer(val personLoader: ActorRef) extends Actor with ActorLogg
     }
     case msg => log.warning(s"Unexpected: $msg")
   }
+}
+
+
+object PersonTransformer {
+  def props(personLoader: ActorRef): Props = Props(new PersonTransformer(personLoader))
 }

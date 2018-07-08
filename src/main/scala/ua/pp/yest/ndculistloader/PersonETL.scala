@@ -47,12 +47,12 @@ class PersonETL(reaper: ActorRef, val sourceFileName: String, val transformersCo
       //Start ETL process
       //log.warning("PersonETL:Start,{}", sourceFileName)
       //Create Loader actor
-      val personLoader = context.actorOf(Props(new PersonDMLLoader(sourceFileName.substring(0, sourceFileName.lastIndexOf('.')) + ".pdc")), "personLoader")
+      val personLoader = context.actorOf(PersonDMLLoader.props(sourceFileName.substring(0, sourceFileName.lastIndexOf('.')) + ".pdc"), "personLoader")
 
       //Create pool of transformer actors
       val personTransformers: Array[ActorRef] = new Array[ActorRef](transformersCount)
       for (i <- 0 until transformersCount) {
-        personTransformers(i) = context.actorOf(Props(new PersonTransformer(personLoader)), s"persontransformer${i + 1}")
+        personTransformers(i) = context.actorOf(PersonTransformer.props(personLoader), s"persontransformer${i + 1}")
         reaper ! WatchMe(personTransformers(i))
       }
        //Read data from csv-file
@@ -78,4 +78,9 @@ class PersonETL(reaper: ActorRef, val sourceFileName: String, val transformersCo
     }
   }
 
+}
+
+object PersonETL{
+  def props(reaper: ActorRef, sourceFileName: String,transformersCount: Int = 3): Props =
+    Props(new PersonETL(reaper, sourceFileName,transformersCount))
 }
