@@ -5,6 +5,7 @@
 package ua.pp.yest.ndculistloader
 
 import java.util.concurrent.TimeUnit
+import java.nio.file.{Paths, Files}
 
 import akka.actor._
 
@@ -25,6 +26,10 @@ object NSDCUListLoader extends App {
   if (args.length > 0) {
     inFilePath = args(0)
   }
+  if (! Files.exists(Paths.get(inFilePath))) {
+    throw new Exception("File not found")
+  }
+
   val sysETL = ActorSystem("sysETL")
   val reaper = sysETL.actorOf(Props[ETLActorsReaper])
   val etlActor = sysETL.actorOf(Props(new PersonETL(reaper, inFilePath)), "etlActor")
