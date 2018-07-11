@@ -50,14 +50,18 @@ class PersonETL(reaper: ActorRef, val sourceFileName: String, val transformersCo
       val personLoader = context.actorOf(PersonDMLLoader.props(sourceFileName.substring(0, sourceFileName.lastIndexOf('.')) + ".pdc"), "personLoader")
 
       //Create pool of transformer actors
-      val personTransformers: Array[ActorRef] = new Array[ActorRef](transformersCount)
-      for (i <- 0 until transformersCount) {
-        personTransformers(i) = context.actorOf(PersonTransformer.props(personLoader), s"persontransformer${i + 1}")
-        reaper ! WatchMe(personTransformers(i))
-      }
+
+//      val personTransformers: Array[ActorRef] = new Array[ActorRef](transformersCount)
+//      for (i <- 0 until transformersCount) {
+//        personTransformers(i) = context.actorOf(PersonTransformer.props(personLoader,transformersCount), s"persontransformer${i + 1}")
+//        reaper ! WatchMe(personTransformers(i))
+//      }
+
+
+      val personTransformer = context.actorOf(PersonTransformer.propsWithBalancingPoolRouter(personLoader,transformersCount))
        //Read data from csv-file
       val listReader = CSVReader.open(sourceFileName, "windows-1251")
-      var rowCounter = 0
+      //var rowCounter = 0
       try {
         for (personRow <- listReader) {
           val person: SanctionPerson = personRow match {
@@ -65,8 +69,9 @@ class PersonETL(reaper: ActorRef, val sourceFileName: String, val transformersCo
               new SanctionPerson(orderNo, personType, personNo, personData, sanctionData, sanctionTerm)
           }
           //Send Data to Transformer
-          personTransformers(rowCounter % transformersCount) ! person
-          rowCounter += 1
+          //personTransformers(rowCounter % transformersCount) ! person
+          personTransformer ! person
+          //rowCounter += 1
         }
       }
       catch {

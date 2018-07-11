@@ -13,7 +13,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import akka.actor.{ActorSystem, Props, SupervisorStrategy}
 import ua.pp.yest.ndculistloader.Reaper.WatchMe
-
+//import com.typesafe.config.ConfigFactory
 
 /**
   * Main function object
@@ -21,6 +21,9 @@ import ua.pp.yest.ndculistloader.Reaper.WatchMe
   */
 
 object NSDCUListLoader extends App {
+
+//  val config = ConfigFactory.load()
+
   val system: ActorSystem = ActorSystem("sanctionPersonLoader")
   var inFilePath: String = ""
   if (args.length > 0) {

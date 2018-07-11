@@ -5,6 +5,7 @@
 package ua.pp.yest.ndculistloader
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import akka.routing.{BalancingPool}
 
 /**
   * Transform Person data before loading process
@@ -27,5 +28,13 @@ class PersonTransformer(val personLoader: ActorRef) extends Actor with ActorLogg
 
 
 object PersonTransformer {
-  def props(personLoader: ActorRef): Props = Props(new PersonTransformer(personLoader))
+  def props(personLoader: ActorRef): Props =
+  {
+    Props(new PersonTransformer(personLoader))
+  }
+
+  def propsWithBalancingPoolRouter(personLoader: ActorRef, nrOfInstances: Int): Props = {
+    props(personLoader).withRouter(BalancingPool(nrOfInstances = nrOfInstances))
+  }
+
 }
